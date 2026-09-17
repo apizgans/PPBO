@@ -1,63 +1,70 @@
 <?php
-class Mobil{
-private $merek;
-private $warna;
-private $kecepatan;
-public function __construct($merek, $warna, $kecepatan) {
-$this->merek = $merek;
-$this->warna = $warna;
-$this->kecepatan = $kecepatan;
-}
-public function setMerek($merek) {
-$this->merek = $merek;
-}
-public function setWarna($warna) {
-if (!empty($warna) && strlen($warna) >= 3) {
-$this->warna = $warna;
-} else {
-echo "Warna tidak valid. Warna tidak boleh kosong dan minimal 3 karakter.<br>";
-}
-}
-public function setKecepatan($kecepatan) {
-if ($kecepatan >= 0 && $kecepatan <= 200) {
-$this->kecepatan = $kecepatan;
-} else {
-echo "Kecepatan tidak valid. Kecepatan harus antara 0 dan 200 km/jam.<br>";
-}
-}
-public function getMerek() {
-return $this->merek;
-}
-public function getWarna() {
-return $this->warna;
-}
-public function getKecepatan() {
-return $this->kecepatan;
+// Parent Class
+class Produk {
+    protected $nama;
+    protected $merek;
+    protected $harga;
+
+    public function __construct($nama, $merek, $harga) {
+        $this->nama = $nama;
+        $this->merek = $merek;
+        // Validasi harga di constructor
+        if ($harga < 0) {
+            throw new Exception("Harga tidak boleh bernilai negatif");
+        }
+        $this->harga = $harga;
+    }
+
+    public function getInfo() {
+        return "Merek: " . $this->merek . "\n" .
+               "Harga: Rp " . number_format($this->harga, 0, ',', '.');
+    }
 }
 
-public function getInfo() {
-echo "Merek: " . $this->getMerek() . "<br>";
-echo "Warna: " . $this->getWarna() . "<br>";
-echo "Kecepatan: " . $this->getKecepatan() . " km/jam<br>";
+// Child Class - Makanan
+class Makanan extends Produk {
+    private $tanggalKadaluarsa;
+
+    public function __construct($nama, $merek, $harga, $tanggalKadaluarsa) {
+        parent::__construct($nama, $merek, $harga);
+        $this->tanggalKadaluarsa = $tanggalKadaluarsa;
+    }
+
+    // Override getInfo() dari parent
+    public function getInfo() {
+        $status = (strtotime($this->tanggalKadaluarsa) >= strtotime(date('Y-m-d')))
+            ? "Segar" : "Kadaluarsa";
+
+        return "Produk: Makanan - " . $this->nama . "\n" .
+               parent::getInfo() . "\n" .
+               "Tanggal Kadaluarsa: " . $this->tanggalKadaluarsa . "\n" .
+               "Status: " . $status;
+    }
 }
-public function berjalan(){
-echo "Mobil " . $this->getMerek() . " sedang berjalan dengan kecepatan " . $this->getKecepatan() . "
-km/jam.<br>";
+
+// Child Class - Elektronik
+class Elektronik extends Produk {
+    private $garansi; // dalam bulan
+
+    public function __construct($nama, $merek, $harga, $garansi) {
+        parent::__construct($nama, $merek, $harga);
+        $this->garansi = $garansi;
+    }
+
+    // Override getInfo() dari parent
+    public function getInfo() {
+        return "Produk: Elektronik - " . $this->nama . "\n" .
+               parent::getInfo() . "\n" .
+               "Garansi: " . $this->garansi . " bulan";
+    }
 }
-public function berhenti(){
-echo "Mobil " . $this->getMerek() . " telah berhenti.<br>";
-}
-}
-$mbl = new Mobil("Pagani", "Merah", 100);
-$mbl->getInfo();
-$mbl->berjalan();
-$mbl->berhenti();
-$mbl2 = new Mobil("Lamborghini", "Hitam", 350);
-$mbl2->getInfo();
-$mbl2->berjalan();
-$mbl2->berhenti();
-$mbl3 = new Mobil("Ferrari", "Merah", 500);
-$mbl3->getInfo();
-$mbl3->berjalan();
-$mbl3->berhenti();
+
+// Penggunaan
+$makanan = new Makanan("Mie Instan", "Indomie", 3500, "2025-06-30");
+echo $makanan->getInfo();
+echo "<br>";
+
+$elektronik = new Elektronik("Smart TV", "Samsung", 5000000, 12);
+echo $elektronik->getInfo();
+echo "\n";
 ?>
